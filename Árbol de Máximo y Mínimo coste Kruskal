@@ -1,0 +1,58 @@
+# Carlos Andres Riveramelo Del Toro
+# 20310382
+# Inteligencia Artificial
+# Practica 5: Árbol de Máximo y Mínimo coste Kruskal
+
+class UnionFind:
+    def __init__(self, vertices):
+        self.parent = {}
+        self.rank = {}
+        for v in vertices:
+            self.parent[v] = v
+            self.rank[v] = 0
+    
+    def find(self, v):
+        if self.parent[v] != v:
+            self.parent[v] = self.find(self.parent[v])
+        return self.parent[v]
+    
+    def union(self, v1, v2):
+        root1 = self.find(v1)
+        root2 = self.find(v2)
+        if root1 != root2:
+            if self.rank[root1] > self.rank[root2]:
+                self.parent[root2] = root1
+            else:
+                self.parent[root1] = root2
+                if self.rank[root1] == self.rank[root2]:
+                    self.rank[root2] += 1
+
+def kruskal(graph):
+    edges = []
+    for v in graph:
+        for neighbor, weight in graph[v]:
+            edges.append((weight, v, neighbor))
+    edges.sort()  # Ordenar las aristas por peso
+    
+    minimum_spanning_tree = set()
+    vertices = set(graph.keys())
+    uf = UnionFind(vertices)
+    
+    for weight, v1, v2 in edges:
+        if uf.find(v1) != uf.find(v2):  # No forma un ciclo
+            minimum_spanning_tree.add((v1, v2, weight))
+            uf.union(v1, v2)
+    
+    return minimum_spanning_tree
+
+graph = {
+    'A': [('B', 1), ('C', 4)],
+    'B': [('A', 1), ('C', 2), ('D', 3)],
+    'C': [('A', 4), ('B', 2), ('D', 5)],
+    'D': [('B', 3), ('C', 5)]
+}
+
+minimum_spanning_tree = kruskal(graph)
+for edge in minimum_spanning_tree:
+    v1, v2, weight = edge
+    print(f'{v1} -- {v2} : {weight}')
